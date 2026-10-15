@@ -1,0 +1,269 @@
+{
+  "info": {
+    "_postman_id": "a92e10f1-419b-4b13-88bc-9f7cb2fbe101",
+    "name": "ShopKart Customer Authentication Service (Lab 01)",
+    "description": "Complete Postman collection for testing ShopKart Authentication APIs according to the Lab 01 Rubric. Supports HttpOnly cookie authentication and includes all core endpoints plus Bonus Challenge.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5000",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "1. Register Customer (Success 201)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"fullName\": \"John Doe\",\n  \"email\": \"john@gmail.com\",\n  \"password\": \"john123\",\n  \"phone\": \"9876543210\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/customers/register",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "customers",
+            "register"
+          ]
+        },
+        "description": "Registers a new customer. Password is automatically hashed with bcrypt before saving to MongoDB."
+      }
+    },
+    {
+      "name": "2. Register Customer - Missing Field (400)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"fullName\": \"John Doe\",\n  \"email\": \"john_missing@gmail.com\",\n  \"password\": \"john123\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/customers/register",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "customers",
+            "register"
+          ]
+        },
+        "description": "Fails with 400 Bad Request because the phone number field is missing."
+      }
+    },
+    {
+      "name": "3. Register Customer - Short Password (400)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"fullName\": \"John Doe\",\n  \"email\": \"john_short@gmail.com\",\n  \"password\": \"123\",\n  \"phone\": \"9876543210\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/customers/register",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "customers",
+            "register"
+          ]
+        },
+        "description": "Fails with 400 Bad Request because password length is under 6 characters."
+      }
+    },
+    {
+      "name": "4. Register Customer - Duplicate Email (409)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"fullName\": \"Duplicate User\",\n  \"email\": \"john@gmail.com\",\n  \"password\": \"john123\",\n  \"phone\": \"9876543210\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/customers/register",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "customers",
+            "register"
+          ]
+        },
+        "description": "Fails with 409 Conflict when attempting to register with an already existing email address."
+      }
+    },
+    {
+      "name": "5. Login Customer (Success 200)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"john@gmail.com\",\n  \"password\": \"john123\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/customers/login",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "customers",
+            "login"
+          ]
+        },
+        "description": "Logs in customer, returns 200 OK, and sets the JWT inside an HttpOnly cookie named 'token'."
+      }
+    },
+    {
+      "name": "6. Login Customer - Invalid Credentials (401)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"john@gmail.com\",\n  \"password\": \"wrongPassword\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/customers/login",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "customers",
+            "login"
+          ]
+        },
+        "description": "Returns 401 Unauthorized with generic 'Invalid credentials' message, without leaking whether email or password was wrong."
+      }
+    },
+    {
+      "name": "7. Get My Profile (Success 200)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/customers/me",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "customers",
+            "me"
+          ]
+        },
+        "description": "Protected route. Postman automatically includes the HttpOnly 'token' cookie saved from the login request. Returns customer profile without password."
+      }
+    },
+    {
+      "name": "8. Change Password - Bonus (Success 200)",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"oldPassword\": \"john123\",\n  \"newPassword\": \"newSecurePass456\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/customers/change-password",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "customers",
+            "change-password"
+          ]
+        },
+        "description": "Bonus Challenge (+10 Marks). Verifies the old password, hashes the new password with bcrypt, and saves to MongoDB."
+      }
+    },
+    {
+      "name": "9. Change Password - Wrong Old Password (400)",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"oldPassword\": \"incorrectPass\",\n  \"newPassword\": \"validNewPass123\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/customers/change-password",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "customers",
+            "change-password"
+          ]
+        },
+        "description": "Bonus Challenge. Returns 400 Bad Request when old password verification fails."
+      }
+    },
+    {
+      "name": "10. Logout Customer (Success 200)",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/customers/logout",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "customers",
+            "logout"
+          ]
+        },
+        "description": "Clears the 'token' HttpOnly cookie and invalidates client session."
+      }
+    }
+  ]
+}

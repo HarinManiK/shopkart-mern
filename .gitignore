@@ -1,0 +1,22 @@
+# dependencies & build output
+node_modules/
+dist/
+dist-ssr/
+# old Lab 01 prebuilt UI that Express used to serve; the real UI now lives in frontend/
+backend/public/
+
+# secrets - NEVER commit (use backend/.env.example as the template)
+.env
+.env.*
+!.env.example
+
+# logs / editor / OS
+*.log
+.DS_Store
+.vscode/*
+!.vscode/extensions.json
+.idea
+
+# personal study notes (not part of the project)
+VIVA_GUIDE.md
+STUDY_GUIDE.md
